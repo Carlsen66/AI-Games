@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>doodle classifier</title>
+
+	<script src="libraries/p5.min.js"></script>
+	<script src="libraries/p5.dom.min.js"></script>
+	<script src="loadbinary.js"></script>
+	<script src="traintest.js"></script>
+	<script src="dataprep.js"></script>
+	<script src="sketch.js"></script>
+	<script src="../../lib/nn.js"></script>
+	<script src="../../lib/matrix.js"></script>
+	<style>
+		body {
+			background-color: #AAA;
+		}
+
+		button {
+			font-size: 24pt;
+			margin: 10px;
+		}
+
+		div.fixed {
+			position: fixed;
+			top: 300px;
+			left: 0;
+			width: 500px;
+			border: 3px solid rgb(255, 255, 255);
+		}
+		div.fixedinfo {
+			position: fixed;
+			font-size: 18pt;
+			text-align: center;
+			top: 10px;
+			left: 300px;
+			width: 200px;
+			border: 3px solid rgb(255, 255, 255);
+		}
+		div.fixediq {
+			position: fixed;
+			font-size: 18pt;
+			text-align: center;
+			top: 150px;
+			left: 300px;
+			width: 200px;
+			border: 3px solid rgb(255, 255, 255);
+		}
+	</style>
+</head>
+
+<body>
+	<div class="fixed">
+		<button id="train">train</button>
+		<button id="test">test</button>
+		<button id="guess">guess</button>
+		<button id="clear">clear</button>
+	</div>
+	<div class="fixedinfo">
+		<p>INFO</p>
+		<p id="infotext">TheCodeTrain</p>
+	</div>
+	<div class="fixediq">
+		<p>IQ</p>
+		<p id="iqtext">0%</p>
+	</div>
+</body>
+
+</html>
