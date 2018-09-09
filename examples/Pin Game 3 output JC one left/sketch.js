@@ -21,6 +21,8 @@ let wa = [];
 let ha = [];
 let pre_right =0;
 let pre_fail = 0;
+let speedSlider;
+let speedSpan;
 
 
 function setup() {
@@ -39,6 +41,8 @@ function setup() {
   SaveButton.mousePressed(SaveBrain);
   LoadButton = select('#loadgame');
   LoadButton.mousePressed(LoadBrain);
+  speedSlider = select('#speedSlider');
+  speedSpan = select('#speed');
 
   //setFrameRate(1);
 
@@ -61,7 +65,7 @@ function setup() {
 
   //grid[0][2].wall = false;
 
-  gamebrian = new NeuralNetwork(cols * rows, (cols * rows) * 200, 3);
+  gamebrian = new NeuralNetwork(cols * rows, (cols * rows) * 3, 3);
   SetupGame();
 }
 
@@ -154,6 +158,11 @@ function draw() {
   let pinmove = 0;
   let bloop = 0;
   let inputs = 0;
+
+  let cycles = speedSlider.value();
+  speedSpan.html(cycles);
+  setFrameRate(cycles);
+  //console.log(cycles);
 
   background(204, 150, 34);
 

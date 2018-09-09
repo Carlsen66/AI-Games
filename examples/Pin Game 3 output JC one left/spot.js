@@ -20,12 +20,16 @@ function Spot(w, h) {
   // Display me
   this.show = function(col) {
     if (this.wall) {
-      fill(col);
-      noStroke();
+      fill("#ff9900");
+      stroke(0);
       ellipse(this.w * ww + ww / 2, this.h * hh + hh / 2, ww / 2, hh / 2);
     } else if (col) {
       fill(col);
       rect(this.w * ww, this.h * hh, ww, hh);
+    } else {
+      noFill();
+      stroke(0);
+      ellipse(this.w * ww + ww / 2, this.h * hh + hh / 2, ww / 2, hh / 2);
     }
   }
 

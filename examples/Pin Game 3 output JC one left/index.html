@@ -11,15 +11,18 @@
 
 </head>
 
+
 <body>
-  <h1>Solitaire AI Game</h1>
-  <p><button id="trygame">Try Brain</button></p>
-  <p><button id="save">Save Brain</button><button id="loadgame">Load Brain</button></p>
-  <p id="Games">Games</p>
-  <p id="prediction">Prediction<p>
-  <p id="Answer">Answer<p>
-  <p id="MinPins">minpins<p>
-  <p id="learning">Learning Rate:<p>
+  <table width="400px" bgcolor="#00cc99">
+    <tr><td><h1>Solitaire AI Game</h1></td><td></td></tr>
+    <tr><td><p><button id="trygame">Try Brain</button><button id="save">Save Brain</button><button id="loadgame">Load Brain</button></p></td><td></td></tr>
+    <tr><td><p id="Games">Games</p></td><td></td></tr>
+    <tr><td width="280px"><p id="prediction">Prediction</p></td><td><p id="Answer">Answer</p></td></tr>
+    <tr><td><p id="MinPins">minpins</p></td><td><p id="learning">Learning Rate:</p></td></tr>
+    <tr><td><p>speed: <input id="speedSlider" type="range" min="1" max="60" value="60"> <span id="speed">1</span></p></td><td></td></tr>
+  </table>
+
+
 </body>
 
 </html>
