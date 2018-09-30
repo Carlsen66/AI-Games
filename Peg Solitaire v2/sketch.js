@@ -1,6 +1,6 @@
 // How many columns and rows?
-var cols = 4;
-var rows = 4;
+var cols = 7;
+var rows = 7;
 
 // This will be the 2D array
 var grid = new Array(cols);
@@ -25,13 +25,14 @@ let speedSlider;
 let speedSpan;
 let wr = 1;
 let hr = 0;
+let lpins = 200;
 
 
 let moves = { pw: 0, py: 0, pm: 0 };
 let goodmoves = [];
 let goodgames = [];
 let startpos = [];
-let findbest = true;
+let findbest = false;
 
 
 function setup() {
@@ -50,6 +51,8 @@ function setup() {
   SaveButton.mousePressed(SaveBrain);
   LoadButton = select('#loadgame');
   LoadButton.mousePressed(LoadBrain);
+  Fbg = select('#Fbg');
+  Fbg.mousePressed(FindbestGame);
   speedSlider = select('#speedSlider');
   speedSpan = select('#speed');
 
@@ -92,6 +95,19 @@ function toggleState() {
   }
 }
 
+// Toggle the state of the simulation
+function FindbestGame() {
+  findbest = !findbest;
+  // Show the best bird
+  if (!findbest) {
+    SetupGame();
+    Fbg.html('Findbest');
+  } else {
+    SetupGame();
+    Fbg.html('AI');
+  }
+}
+
 function shuffle(array) {
   var currentIndex = array.length,
     temporaryValue, randomIndex;
@@ -111,11 +127,22 @@ function shuffle(array) {
   return array;
 }
 
+// Mutation function to be passed into bird.brain
+function mutate(x) {
+  if (random(1) < 0.1) {
+    let offset = randomGaussian() * 0.5;
+    let newx = x + offset;
+    return newx;
+  } else {
+    return x;
+  }
+}
+
 function SetupGame() {
   let mpins = 0;
-
+  gamebrian = new NeuralNetwork(cols * rows, (cols * rows) * 3, 3);
   g++;
-  //console.log('Game:' + g);
+  // console.log('Game:' + g);
   Games.html('Games:' + g);
 
   for (var w = 0; w < cols; w++) {
@@ -129,25 +156,30 @@ function SetupGame() {
       grid[w][h].wall = true;
     }
   }
+  for (var w = 0; w < cols; w++) {
+    for (var h = 0; h < rows; h++) {
+      if ((w < 2 || w > cols - 3) && (h < 2 || h > rows - 3)) grid[w][h].visible = false;
+    }
+  }
+  grid[floor(cols / 2)][floor(rows / 2)].wall = false;
+
+  if(mpins < lpins) {
+    if(mpins != 1) gamebrian.mutate(mutate);
+    lpins = mpins;
+    console.log(lpins);
+  }
+  else {
+    gamebrian.mutate(mutate);
+  }
+  
+
   minpins.html('MinPins:' + mpins);
   if (mpins == 1) {
     goodgames.push(goodmoves);
     let sp = { wr: wr, hr: hr };
     startpos.push(sp);
     goodmoves = [];
-    // if (findbest) {
-    //   wr++;
-    //   if (wr > cols) {
-    //     wr = 0;
-    //     hr++;
-    //     if (hr > rows) {
-    //       noLoop();
-    //       console.log("Game End")
-    //     }
-    //   }
-    // }
-    wr = floor(random(1, cols - 1));
-    hr = floor(random(1, rows - 1));
+
     console.log("goodgame");
   } else {
     goodmoves = [];
@@ -160,14 +192,12 @@ function SetupGame() {
       ha[h] = h;
     }
   }
-  wa = shuffle(wa);
-  ha = shuffle(ha);
-
+  // if (findbest) {
+    wa = shuffle(wa);
+    ha = shuffle(ha);
+  // }
   // console.log(wa);
   // console.log(ha);
-
-  grid[wr][hr].wall = false;
-  grid[wr][hr].show();
   // All the neighbors
   for (var w = 0; w < cols; w++) {
     for (var h = 0; h < rows; h++) {
@@ -177,6 +207,7 @@ function SetupGame() {
 }
 
 function draw() {
+
   let rawprediction = 0;
   let nn_input = [];
   // let nn_train = [];
@@ -198,10 +229,10 @@ function draw() {
   for (var w = 0; w < rows; w++) {
     for (var h = 0; h < cols; h++) {
       if (speedSlider.value() <= 59) {
-        grid[w][h].show(0);
+        grid[w][h].show("#335566");
       }
-      nn_input[w * cols + h] = grid[w][h].wall;
-      ls_input[w * cols + h] = grid[w][h].wall;
+      nn_input[w * cols + h] = (grid[w][h].wall && grid[w][h].visible);
+      ls_input[w * cols + h] = (grid[w][h].wall && grid[w][h].visible);
     }
   }
 
@@ -224,64 +255,23 @@ function draw() {
   bloop = 1; // break loop flag.
   prediction.html('Prediction:' + pin_w + ':' + pin_h + ':' + pinmove)
   //console.log('pin_w:' + pin_w + ' pin_h:' + pin_h + ' pinmove:' + pinmove);
-  // console.log("2");
+  
+
   //*** Try if prediction is posible.
   if (findbest != true) {
-    if (TryMovePin(pin_w, pin_h, pinmove, false) == true) {
+    if (TryMovePin(pin_w, pin_h, pinmove, true) == true) {
       // console.log('Good prediction');
       if (!runBrain) {
         pre_right++;
         moves = { pw: pin_w, py: pin_h, pm: pinmove };
         goodmoves.push(moves);
-        gamebrian.train(nn_input, rawprediction);
+        
+        bloop = 0;
       }
-      //*** if prediction is good then do move.
-      TryMovePin(pin_w, pin_h, pinmove, true);
-      // wa = shuffle(wa);
-      // ha = shuffle(ha);
-      bloop = 0;
+      
     } else {
       // console.log('Bad prediction');
       //*** if bad prediction, then find a good move and train brain.
-      if (!runBrain) {
-        pre_fail++;
-        for (var w = 0; w < rows; w++) {
-          for (var h = 0; h < cols; h++) {
-            //console.log('grid[' + wa[i] + '][' + ha[i] + ']');
-            nn_train = movePin(wa[w], ha[h]);
-            // nn_train = movePin(w, h);
-            // console.log('Train:' + nn_train);
-            if (nn_train[0] > -1) {
-              //TryMovePin(nn_train[0], nn_train[1], nn_train[2], true);
-              nn_train[0] = nn_train[0] / (rows - 1);
-              nn_train[1] = nn_train[1] / (cols - 1);
-              nn_train[2] = nn_train[2] / (3);
-              // console.log('Train:' + nn_train);
-              gamebrian.train(nn_input, nn_train);
-              bloop = 0;
-              break;
-            }
-          }
-          //*** if no good moves found, the repair for new restart game.
-          if (nn_train[0] > -1) {
-            break;
-          }
-        }
-      } else {
-        inputs = 0;
-        // console.log('compare inputs');
-        for (i = 0; i < nn_input.length - 1; i++) {
-          if (ls_input[i] == nn_input[i]) {
-            inputs++;
-          }
-        }
-        // console.log(inputs+' length:'+ nn_input.length);
-        if (inputs == nn_input.length - 1) {
-          bloop = 1;
-        } else {
-          bloop = 0;
-        }
-      }
     }
   } else {
     //console.log("3");
@@ -291,7 +281,7 @@ function draw() {
     for (var w = 0; w < rows; w++) {
       for (var h = 0; h < cols; h++) {
         //console.log('grid[' + wa[i] + '][' + ha[i] + ']');
-        
+
         for (var m = 0; m < md.length; m++) {
           //console.log("5");
           if (TryMovePin(wa[w], ha[h], md[m], true)) {
@@ -331,23 +321,23 @@ function movePin(w, h) {
       if (n > 3) break;
       neighbor = grid[w][h].neighbors[n];
       if (neighbor.wall) {
-        if (neighbor.wall === true) {
-          if (neighbor.neighbors[n] && neighbor.neighbors[n].wall === false) {
+        if (neighbor.wall === true && neighbor.visible === true) {
+          if (neighbor.neighbors[n] && neighbor.neighbors[n].wall === false && neighbor.neighbors[n].visible === true) {
             //*** found a move.
             moveabel = n;
             moves[0] = w;
             moves[1] = h;
             moves[2] = n;
-            // if (neighbor.neighbors[n].neighbors[n]) {
-            //   for (nn = 0; nn < 3; nn++) {
-            //     if (neighbor.neighbors[n].neighbors[nn].wall === true) {
-            //       //*** found a better move.
-            //       fnb = true;
-            //       break;
-            //     }
-            //   }
-            // }
-            //if (fnb) break;
+            if (neighbor.neighbors[n].neighbors[n]) {
+              for (nn = 0; nn < 3; nn++) {
+                if (neighbor.neighbors[n].neighbors[nn].wall === true && neighbor.neighbors[n].visible === true) {
+                  //*** found a better move.
+                  fnb = true;
+                  break;
+                }
+              }
+            }
+            if (fnb) break;
             break;
           }
         }
@@ -368,8 +358,8 @@ function movePin(w, h) {
 //*** Try prediction
 function TryMovePin(pin_w, pin_h, pinmove, domove) {
   if (grid[pin_w][pin_h].wall === true) {
-    if (grid[pin_w][pin_h].neighbors[pinmove] && grid[pin_w][pin_h].neighbors[pinmove].wall === true) {
-      if (grid[pin_w][pin_h].neighbors[pinmove].neighbors[pinmove] && grid[pin_w][pin_h].neighbors[pinmove].neighbors[pinmove].wall === false) {
+    if (grid[pin_w][pin_h].neighbors[pinmove] && grid[pin_w][pin_h].neighbors[pinmove].wall === true && grid[pin_w][pin_h].neighbors[pinmove].visible === true) {
+      if (grid[pin_w][pin_h].neighbors[pinmove].neighbors[pinmove] && grid[pin_w][pin_h].neighbors[pinmove].neighbors[pinmove].wall === false && grid[pin_w][pin_h].neighbors[pinmove].visible === true) {
 
         // grid[pin_w][pin_h].neighbors[pinmove].neighbors[pinmove].wall = true;
         // grid[pin_w][pin_h].neighbors[pinmove].wall = false;

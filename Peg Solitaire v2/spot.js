@@ -12,6 +12,7 @@ function Spot(w, h) {
 
   // Am I a wall?
   this.wall = true;
+  this.visible = true;
   if (w == 0 & h == 0) {
     this.wall = false;
   }
@@ -19,14 +20,11 @@ function Spot(w, h) {
 
   // Display me
   this.show = function(col) {
-    if (this.wall) {
-      fill("#CB6318");
+    if (this.wall && this.visible) {
+      fill(col);
       stroke(0);
       ellipse(this.w * ww + ww / 2, this.h * hh + hh / 2, ww / 2, hh / 2);
-    } else if (col) {
-      fill(col);
-      rect(this.w * ww, this.h * hh, ww, hh);
-    } else {
+    }  else if(this.visible) {
       noFill();
       stroke(0);
       ellipse(this.w * ww + ww / 2, this.h * hh + hh / 2, ww / 2, hh / 2);

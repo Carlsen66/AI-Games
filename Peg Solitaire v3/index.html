@@ -1,0 +1,29 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.min.js"></script>
+  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/addons/p5.dom.min.js"></script>
+  <script language="javascript" type="text/javascript" src="boader.js"></script>
+  <script language="javascript" type="text/javascript" src="sketch.js"></script>
+  <script language="javascript" type="text/javascript" src="../lib/nn.js"></script>
+  <script language="javascript" type="text/javascript" src="../lib/matrix.js"></script>
+  <script language="javascript" type="text/javascript" src="ga.js"></script>
+
+</head>
+
+
+<body>
+  <table width="400px" bgcolor="#7CAA2D">
+    <tr><td><h1>Peg Solitaire AI</h1></td><td></td></tr>
+    <tr><td><p><button id="bestbrain">Best Brain</button><button id="save">Save Brain</button><button id="loadgame">Load Brain</button></p></td><td></td></tr>
+    <tr><td><p id="Games">Games</p></td><td></td></tr>
+    <tr><td width="280px"><p id="highscore">High</p></td><td><p id="allhighscore">allhighscore</p></td></tr>
+    <tr><td><p id="activepeg">Active</p></td><td><p id="learning">Learning Rate:</p></td></tr>
+    <tr><td><p>speed: <input id="speedSlider" type="range" min="1" max="60" value="60"> <span id="speed">1</span></p></td><td><button id="Fbg">Findbest</button></td></tr>
+  </table>
+
+
+</body>
+
+</html>
