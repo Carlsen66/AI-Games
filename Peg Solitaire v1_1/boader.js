@@ -32,7 +32,7 @@ class CreateBoard {
     this.rows = rows;
     this.score = 0;
     this.fitness = 0;
-    this.falsepegs =0;
+    this.falsepegs = 0;
     // console.log(cols + ' ' + rows);
     for (var w = 0; w < rows; w++) {
       this.pegs[w] = new Array(rows);
@@ -48,7 +48,7 @@ class CreateBoard {
         this.nn_input[w * cols + h] = false;
       }
     }
-    
+
     this.pegs[floor(cols / 2)][floor(rows / 2)].wall = false;
 
     this.falsepegs = new Peg(cols, rows);
@@ -56,9 +56,9 @@ class CreateBoard {
 
     for (var w = 0; w < cols; w++) {
       for (var h = 0; h < rows; h++) {
-        
+
         this.pegs[w][h].addNeighbors(this.pegs, this.falsepegs);
-        
+
         this.nn_input[w * cols + h] = (this.pegs[w][h].wall && this.pegs[w][h].visible);
         // ls_input[w * cols + h] = (this.pegs[w][h].wall && this.pegs[w][h].visible);
       }
@@ -68,32 +68,36 @@ class CreateBoard {
       this.brain = brain.copy();
       this.brain.mutate(mutate);
     } else {
+
       this.brain = new NeuralNetwork(cols * rows, hlayers, 3);
+      if(random(1)>0.4) this.brain.activation = tanh;
+      // this.brain.learning_rate =random(1);
     }
   }
 
 
   //*** Try prediction
-  MovePeg(w, h, md) {
+  MovePeg(w, h, md, mv) {
     let tpeg = 0;
-    
+
     if (this.pegs[w][h].wall === true && this.pegs[w][h].visible === true) {
       tpeg = this.pegs[w][h].neighbors[md];
-      
-      if (tpeg && tpeg.wall === true && tpeg.visible === true) {
-      
-        if (tpeg.neighbors[md] && tpeg.neighbors[md].wall === false && tpeg.neighbors[md].visible === true) {
 
-          this.pegs[w][h].neighbors[md].neighbors[md].wall = true;
-          this.pegs[w][h].neighbors[md].wall = false;
-          this.pegs[w][h].wall = false;
-          this.score++;
-         
+      if (tpeg && tpeg.wall === true && tpeg.visible === true) {
+
+        if (tpeg.neighbors[md] && tpeg.neighbors[md].wall === false && tpeg.neighbors[md].visible === true) {
+          if (mv) {
+            this.pegs[w][h].neighbors[md].neighbors[md].wall = true;
+            this.pegs[w][h].neighbors[md].wall = false;
+            this.pegs[w][h].wall = false;
+            this.score++;
+          }
+
           return true;
         }
       }
     }
-   
+
     return false;
   };
 
@@ -102,7 +106,7 @@ class CreateBoard {
       for (var h = 0; h < this.rows; h++) {
         // if ((w < 2 || w > this.cols - 3) && (h < 2 || h > this.rows - 3))
 
-          this.nn_input[w * this.cols + h] = (this.pegs[w][h].wall && this.pegs[w][h].visible);
+        this.nn_input[w * this.cols + h] = (this.pegs[w][h].wall && this.pegs[w][h].visible);
         // ls_input[w * cols + h] = (this.pegs[w][h].wall && this.pegs[w][h].visible);
       }
     }

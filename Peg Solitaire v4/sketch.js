@@ -12,9 +12,9 @@ let g = 0;
 
 
 // How big is the population
-let totalPopulation = 2000;
+let totalPopulation = 6000;
 let hiddenlayers = 7;
-let mutaterate = 0.6;
+let mutaterate = 0.45;
 
 // All active Peg boards 
 let activePegboards = [];
@@ -23,15 +23,18 @@ let allPegBoards = [];
 
 let tempBestPegBoard = 0;
 
-let highScoreSpan=0;
-let allTimeHighScoreSpan=0;
-let highScore=0;
+let highScoreSpan = 0;
+let allTimeHighScoreSpan = 0;
+let highScore = 0;
 
 
 // Training or just showing the current best
 let runBest = false;
 let runBestButton;
 let BestPegBoard;
+
+let wa = [];
+let ha = [];
 
 
 function setup() {
@@ -43,7 +46,7 @@ function setup() {
   runBestButton = select('#bestbrain');
   runBestButton.mousePressed(toggleState);
   Info = select('#Info');
-  Info.html('HL:'+hiddenlayers+' MR:'+mutaterate+' Pub:'+totalPopulation)
+  Info.html('HL:' + hiddenlayers + ' MR:' + mutaterate + ' Pub:' + totalPopulation)
 
   Games = select('#Games');
   highScoreSpan = select('#highscore');
@@ -89,6 +92,7 @@ function toggleState() {
 
 function draw() {
   let rawprediction = 0;
+  let nn_train = [];
 
   let cycles = speedSlider.value();
 
@@ -98,15 +102,16 @@ function draw() {
 
   background("#34888C");
 
+  console.log("draw start")
 
-  
-  if (speedSlider.value() <= 59) activePegboards[0].ShowPegs();
-    
+  if (speedSlider.value() <= 59) {
+    activePegboards[0].ShowPegs();
+  }
+
 
   for (let i = activePegboards.length - 1; i >= 0; i--) {
-
     rawprediction = activePegboards[i].brain.predict(activePegboards[i].nn_input);
-    // console.log(rawprediction);
+
     //**** Convert prediction grid posion and move direction.
     //*** convert 0-1 to rows
     //*** convert 0-1 to cols
@@ -115,23 +120,16 @@ function draw() {
     pin_h = round(((cols - 1) / 100) * (rawprediction[1] * 100));
     pinmove = round(((3) / 100) * (rawprediction[2] * 100));
 
-    // if(pin_w == 3 && pin_h == 1 && pinmove == 1) console.log('311 good prediction');
-    // if(pin_w == 1 && pin_h == 3 && pinmove == 0) console.log('130 good prediction');
-    // if(pin_w == 3 && pin_h == 5 && pinmove == 3) console.log('353 good prediction');
-    // if(pin_w == 5 && pin_h == 3 && pinmove == 2) console.log('532 good prediction');
-
-    if (activePegboards[i].MovePeg(pin_w, pin_h, pinmove) != true) {
+    if (activePegboards[i].MovePeg(pin_w, pin_h, pinmove, true) != true) {
       activePegboards.splice(i, 1);
     } else {
       activePegboards[i].UpdatePegs();
-      // console.log(activePegboards[i].nn_input)
+     
     }
-    // prediction.html('Prediction:' + pin_w + ':' + pin_h + ':' + pinmove);
-    // console.log('Prediction:' + pin_w + ':' + pin_h + ':' + pinmove);
 
   }
   activepeg.html('Active:' + activePegboards.length);
-  // console.log('active:'+activePegboards.length);
+  console.log('active:' + activePegboards.length);
 
   // What is highest score of the current population
   let tempHighScore = 0;
@@ -148,7 +146,7 @@ function draw() {
     }
 
     // Is it the all time high scorer?
-    
+
     if (tempHighScore > highScore) {
       highScore = tempHighScore;
       BestPegBoard = tempBestPegBoard;
@@ -173,14 +171,12 @@ function draw() {
   }
 }
 
-
-
 function SaveBrain() {
   let json = {};
   json = BestPegBoard.brain;
   console.log('Save game');
 
-  saveJSON(json, 'GameBrain.json')
+  saveJSON(json, 'PegBrain HL ' + hlayers + ' MR ' + mutaterate + ' Pub ' + totalPopulation + '.json')
 }
 
 function getdata(json) {

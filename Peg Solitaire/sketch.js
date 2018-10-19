@@ -77,7 +77,7 @@ function setup() {
 
   //grid[0][2].wall = false;
 
-  gamebrian = new NeuralNetwork(cols * rows, (cols * rows) * 3, 3);
+  gamebrian = new NeuralNetwork(cols * rows, cols , 3);
   SetupGame();
 }
 

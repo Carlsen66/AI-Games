@@ -140,7 +140,7 @@ function mutate(x) {
 
 function SetupGame() {
   let mpins = 0;
-  gamebrian = new NeuralNetwork(cols * rows, (cols * rows) * 3, 3);
+  gamebrian = new NeuralNetwork(cols * rows, cols , 3);
   g++;
   // console.log('Game:' + g);
   Games.html('Games:' + g);
