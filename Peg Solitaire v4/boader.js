@@ -1,7 +1,6 @@
-// Bested on Daniel Shiffman Flappy Bird
-// http://codingtra.wn
+// Based on Daniel Shiffman Flappy Bird
+// http://codingtrain.com
 
-// Mutation function to be passed into bird.brain
 let Pub;
 let mrate;
 let hlayers;
@@ -48,11 +47,12 @@ class CreateBoard {
         this.nn_input[w * cols + h] = false;
       }
     }
-
+    //*** Make an tempty Peg in the middle */
     this.pegs[floor(cols / 2)][floor(rows / 2)].wall = false;
 
     this.falsepegs = new Peg(cols, rows);
     this.falsepegs.wall = true;
+    this.falsepegs.visible = false;
 
     for (var w = 0; w < cols; w++) {
       for (var h = 0; h < rows; h++) {
@@ -70,8 +70,8 @@ class CreateBoard {
     } else {
 
       this.brain = new NeuralNetwork(cols * rows, hlayers, 3);
-      if(random(1)>0.5) this.brain.activation = tanh;
-      // this.brain.learning_rate =random(1);
+      // this.brain.activation = tanh;
+      this.brain.setLearningRate(0.5);
     }
   }
 
@@ -129,6 +129,10 @@ class CreateBoard {
 
 
 // An object to describe a Peg in the this.pegs
+// Find neighbors 
+// wall = Active Peg.
+// visible = Active array of the game.
+
 function Peg(w, h) {
   // Location
   this.w = w;
@@ -137,12 +141,12 @@ function Peg(w, h) {
   // Neighbors
   this.neighbors = [];
 
-  // Am I a wall?
+  // Am I a Peg?
   this.wall = true;
   this.visible = true;
-  if (w == 0 & h == 0) {
-    this.wall = false;
-  }
+  // if (w == 0 & h == 0) {
+  //   this.wall = false;
+  // }
 
 
   // Display me
@@ -159,6 +163,8 @@ function Peg(w, h) {
   }
 
   // Figure out who my neighbors are
+  // falsepegs = array out the game array
+
   this.addNeighbors = function (pegs, falsepegs) {
     var w = this.w;
     var h = this.h;

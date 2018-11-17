@@ -1,20 +1,16 @@
 // How many columns and rows?
-var cols = 7;
-var rows = 7;
-
-// This will be the 2D array
-// var grid = new Array(cols);
-
+let cols = 7;
+let rows = 7;
 
 let speedSlider;
 let speedSpan;
 let g = 0;
 
 
-// How big is the population
-let totalPopulation = 6000;
-let hiddenlayers = 7;
-let mutaterate = 0.45;
+// How big is the population, hiddenlayers and mutaterate
+let totalPopulation = 500;
+let hiddenlayers = 8;
+let mutaterate = 0.5;
 
 // All active Peg boards 
 let activePegboards = [];
@@ -33,15 +29,16 @@ let runBest = false;
 let runBestButton;
 let BestPegBoard;
 
-let wa = [];
-let ha = [];
+
+// let wa = [];
+// let ha = [];
 
 
 function setup() {
   setglobal(totalPopulation, mutaterate, hiddenlayers);
 
   createCanvas(400, 400);
-  console.log('Peg Game');
+  console.log('Peg AI Game');
 
   runBestButton = select('#bestbrain');
   runBestButton.mousePressed(toggleState);
@@ -92,7 +89,6 @@ function toggleState() {
 
 function draw() {
   let rawprediction = 0;
-  let nn_train = [];
 
   let cycles = speedSlider.value();
 
@@ -107,24 +103,28 @@ function draw() {
   if (speedSlider.value() <= 59) {
     activePegboards[0].ShowPegs();
   }
-
+  
+  
+  
+  
 
   for (let i = activePegboards.length - 1; i >= 0; i--) {
     rawprediction = activePegboards[i].brain.predict(activePegboards[i].nn_input);
 
-    //**** Convert prediction grid posion and move direction.
+    //*** Convert prediction grid posion and move direction.
     //*** convert 0-1 to rows
     //*** convert 0-1 to cols
     //*** convert 0-1 to 0-3 moves
-    pin_w = round(((rows - 1) / 100) * (rawprediction[0] * 100));
-    pin_h = round(((cols - 1) / 100) * (rawprediction[1] * 100));
-    pinmove = round(((3) / 100) * (rawprediction[2] * 100));
+    pin_w = floor(((rows - 1) / 100) * ((rawprediction[0]) * 100));
+    pin_h = floor(((cols - 1) / 100) * ((rawprediction[1]) * 100));
+    pinmove = floor(((3) / 100) * ((rawprediction[2]) * 100));
 
+    // *** Test if move is posible 
     if (activePegboards[i].MovePeg(pin_w, pin_h, pinmove, true) != true) {
       activePegboards.splice(i, 1);
     } else {
+      // *** Update new setup.
       activePegboards[i].UpdatePegs();
-     
     }
 
   }
